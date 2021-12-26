@@ -56,7 +56,42 @@ def question_4_example():
 
 def question_4_ratings():
 
-    result = None
+    connect_url = "mongodb://localhost:27017/"
+    mongodb_check.set_connect_url(connect_url)
+
+    # Get the client
+    client = mongodb_check.get_mongo_client()
+    
+    result = client['F21_Final']['got_episodes'].aggregate([
+        {
+            '$project': {
+                'seasonNum': 1,
+                'episodeNum': 1,
+                'episodeTitle': 1,
+                'episodeDescription': 1,
+                'episodeDate': "$episodeAirDate",   
+                'tconst': { '$substr': [ "$episodeLink", 7, 9 ] }
+            }
+        },
+        {
+            '$lookup': {
+                'from': 'title_ratings',
+                'localField': 'tconst',
+                'foreignField': 'tconst',
+                'as': 'result'
+            }
+        },
+        {
+      '$replaceRoot': { 'newRoot': { '$mergeObjects': [ { '$arrayElemAt': [ "$result", 0 ] }, "$$ROOT" ] } }
+        },
+        {
+            '$project': {
+                '_id': 0,
+                'result': 0
+            }
+        }
+        ])
+
+    result = list(result)
+    result = pd.DataFrame(result)
     return result
-
-

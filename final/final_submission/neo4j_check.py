@@ -24,7 +24,7 @@ def get_graph():
 
     if _graph is None:
 
-        _graph = py2neo.Graph("bolt://localhost:7687",
+        _graph = py2neo.Graph("bolt://localhost:11003",
                               auth = (_neo4j_connect_info["user"], _neo4j_connect_info["password"]))
 
     return _graph
